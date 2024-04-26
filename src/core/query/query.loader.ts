@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { action, makeObservable, observable } from "mobx";
+import { injectable } from 'inversify';
+import { action, makeObservable, observable } from 'mobx';
 
 type QueryFetcher<T> = () => Promise<T>;
 
@@ -38,10 +38,12 @@ export class QueryLoader {
   };
 
   @action
-  query = async <T>(
-    options: QueryOptions<T>
-  ): Promise<QueryResult<T> & { data: T }> => {
+  query = async <T>(options: QueryOptions<T>): Promise<QueryResult<T> & { data: T }> => {
     const { fetcher, ...rest } = options;
+
+    if (!this.shouldSuspend(options.key)) {
+      return this.getResult(options.key);
+    }
 
     const revalidateIn = options.revalidateIn ?? defaultRevalidateIn;
 
@@ -92,9 +94,7 @@ export class QueryLoader {
     }
   };
 
-  querySuspenseMultiple = <T>(
-    ...options: QueryOptions<T>[]
-  ): QueryResult<T>[] => {
+  querySuspenseMultiple = <T>(...options: QueryOptions<T>[]): QueryResult<T>[] => {
     const promises: Promise<unknown>[] = [];
 
     options.forEach((option) => {

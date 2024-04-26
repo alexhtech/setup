@@ -2,6 +2,7 @@ import 'reflect-metadata/lite';
 
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Link from 'next/link';
 
 import './globals.css';
 import { Providers } from './providers';
@@ -21,6 +22,8 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
+        <Link href='/'>Home</Link>
+        <Link href='/sips'>Sips</Link>
         <Providers>{children}</Providers>
       </body>
     </html>

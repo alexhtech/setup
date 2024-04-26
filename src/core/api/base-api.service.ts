@@ -7,7 +7,6 @@ import { Logger } from '@/core/logger';
 import { Disposable } from '@/utils/disposable';
 import { RetryStrategy } from '@/utils/retry-strategy';
 
-import { AuthHeaders } from '../auth/auth-utils';
 import { isServer } from '../query/is-server';
 import { QueryLoader } from '../query/query.loader';
 import { BaseGQLClientService } from './base-gql.client';
@@ -21,7 +20,7 @@ type Config = {
   url: string;
   wsUrl?: string;
   wsTeardown$?: Observable<unknown>;
-  getAuthHeaders?: () => Promise<AuthHeaders>;
+  getAuthHeaders?: () => Promise<Record<string, string>>;
 };
 
 export abstract class BaseApiService extends Disposable {
@@ -85,9 +84,15 @@ export abstract class BaseApiService extends Disposable {
     variables?: ExtractVariables<Q>,
     headers?: HeadersInit,
   ): Promise<ExtractResult<Q>> => {
+    const key = queryFn.name + ':' + JSON.stringify(variables || {});
     const authHeaders = await this.config.getAuthHeaders?.();
 
-    return queryFn(this.request, variables, { ...authHeaders, ...headers });
+    const result = await this.queryLoader.query({
+      fetcher: async () => queryFn(this.request, variables, { ...authHeaders, ...headers }),
+      key,
+    });
+
+    return result.data;
   };
 
   querySuspense = <Q extends QueryFn>(

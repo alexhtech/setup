@@ -1,13 +1,17 @@
 'use client';
 
 import { useService } from '@redtea/react-inversify';
+import { use } from 'react';
 
-import { ApiService } from '@/core/api/api.service';
-import { GetSips } from '@/core/api/gql/sip/get-sips.gql.generated';
+import { useIOC } from '@/core/ioc/use-ioc.hook';
+import { sipsModule } from '@/core/sips/sips.module';
+import { SipsStore } from '@/core/sips/sips.store';
 
 export default function SipsPage() {
-  const apiService = useService(ApiService);
-  const sips = apiService.querySuspense(GetSips);
+  useIOC(sipsModule);
+  const sipsStore = useService(SipsStore);
+
+  use(sipsStore.init());
 
   return (
     <div className='p-4 h-screen'>
@@ -19,7 +23,7 @@ export default function SipsPage() {
           </tr>
         </thead>
         <tbody>
-          {sips.getSips.map((sip, idx) => (
+          {sipsStore.sips.map((sip, idx) => (
             <tr key={idx}>
               <td>{sip.name}</td>
               <td>{sip.apr}</td>
