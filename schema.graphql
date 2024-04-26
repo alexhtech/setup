@@ -1,0 +1,37 @@
+"""
+Implement the DateTime<Utc> scalar
+
+The input/output is a string in RFC3339 format.
+"""
+scalar DateTime
+
+"""
+ISO 8601 calendar date without timezone.
+Format: %Y-%m-%d
+
+# Examples
+
+* `1994-11-13`
+* `2000-02-24`
+"""
+scalar NaiveDate
+
+type PerformanceType {
+  date: NaiveDate!
+  value: Float!
+}
+
+type Query {
+  """Get a SIP by name"""
+  getSip(name: String!): SipType!
+
+  """Get all SIPs"""
+  getSips: [SipType!]!
+}
+
+type SipType {
+  apr: Float!
+  createdAt: DateTime!
+  name: String!
+  performance: [PerformanceType!]!
+}
